@@ -1,14 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # This class handles the generation of a new song given a markov chain
 # containing the note transitions and their frequencies.
 
 from markov_chain import MarkovChain
 
-import random
 import mido
 
-class Generator:
 
+class Generator:
     def __init__(self, markov_chain):
         self.markov_chain = markov_chain
 
@@ -19,10 +18,8 @@ class Generator:
 
     def _note_to_messages(self, note):
         return [
-            mido.Message('note_on', note=note.note, velocity=127,
-                         time=0),
-            mido.Message('note_off', note=note.note, velocity=0,
-                         time=note.duration)
+            mido.Message("note_on", note=note.note, velocity=127, time=0),
+            mido.Message("note_off", note=note.note, velocity=0, time=note.duration),
         ]
 
     def generate(self, filename):
@@ -36,15 +33,18 @@ class Generator:
             midi.tracks.append(track)
             midi.save(filename)
 
+
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) == 3:
         # Example usage:
         # python generator.py <in.mid> <out.mid>
         from parser import Parser
+
         chain = Parser(sys.argv[1]).get_chain()
         Generator.load(chain).generate(sys.argv[2])
-        print('Generated markov chain')
+        print("Generated markov chain")
     else:
-        print('Invalid number of arguments:')
-        print('Example usage: python generator.py <in.mid> <out.mid>')
+        print("Invalid number of arguments:")
+        print("Example usage: python generator.py <in.mid> <out.mid>")
