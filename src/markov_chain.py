@@ -1,14 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # This class handles the storage and manipulation of a markov chain of notes.
 
 from collections import Counter, defaultdict, namedtuple
 
 import random
 
-Note = namedtuple('Note', ['note', 'duration'])
+Note = namedtuple("Note", ["note", "duration"])
+
 
 class MarkovChain:
-
     def __init__(self):
         self.chain = defaultdict(Counter)
         self.sums = defaultdict(int)
@@ -59,20 +59,22 @@ class MarkovChain:
             for note in to_notes:
                 if note not in columns:
                     columns.append(note)
-        _col = lambda string: '{:<8}'.format(string)
-        _note = lambda note: '{}:{}'.format(note.note, note.duration)
-        out = _col('')
-        out += ''.join([_col(_note(note)) for note in columns[:limit]]) + '\n'
+        _col = lambda string: "{:<8}".format(string)
+        _note = lambda note: "{}:{}".format(note.note, note.duration)
+        out = _col("")
+        out += "".join([_col(_note(note)) for note in columns[:limit]]) + "\n"
         for from_note, to_notes in self.chain.items():
             out += _col(from_note)
             for note in columns[:limit]:
                 out += _col(to_notes[note])
-            out += '\n'
+            out += "\n"
         print(out)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
-    if len(sys.argv) == 2 and sys.argv[1] == 'test':
+
+    if len(sys.argv) == 2 and sys.argv[1] == "test":
         m = MarkovChain()
         m.add(12, 14, 200)
         m.add(12, 15, 200)

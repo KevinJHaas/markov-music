@@ -1,15 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # This class handles the parsing of a midi file and builds a markov
 # chain from it.
 
-import hashlib
 import mido
 import argparse
 
 from markov_chain import MarkovChain
 
-class Parser:
 
+class Parser:
     def __init__(self, filename, verbose=False):
         """
         This is the constructor for a Serializer, which will serialize
@@ -47,9 +46,7 @@ class Parser:
                     if message.time == 0:
                         current_chunk.append(message.note)
                     else:
-                        self._sequence(previous_chunk,
-                                       current_chunk,
-                                       message.time)
+                        self._sequence(previous_chunk, current_chunk, message.time)
                         previous_chunk = current_chunk
                         current_chunk = []
 
@@ -62,8 +59,7 @@ class Parser:
         """
         for n1 in previous_chunk:
             for n2 in current_chunk:
-                self.markov_chain.add(
-                    n1, n2, self._bucket_duration(duration))
+                self.markov_chain.add(n1, n2, self._bucket_duration(duration))
 
     def _bucket_duration(self, ticks):
         """
@@ -74,15 +70,15 @@ class Parser:
             ms = ((ticks / self.ticks_per_beat) * self.tempo) / 1000
             return int(ms - (ms % 250) + 250)
         except TypeError:
-            raise TypeError(
-                "Could not read a tempo and ticks_per_beat from midi")
+            raise TypeError("Could not read a tempo and ticks_per_beat from midi")
 
     def get_chain(self):
         return self.markov_chain
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", help="The midi file input")
     args = parser.parse_args()
     print(Parser(args.input_file, verbose=False).get_chain())
-    print('No issues parsing {}'.format(args.input_file))
+    print("No issues parsing {}".format(args.input_file))
