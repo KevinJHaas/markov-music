@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # This class handles the generation of a new song given a markov chain
 # containing the note transitions and their frequencies.
+import argparse
+import mido
 
 from markov_chain import MarkovChain
-
-import mido
+from midi_parser import MidiParser
 
 
 class Generator:
@@ -22,29 +23,34 @@ class Generator:
             mido.Message("note_off", note=note.note, velocity=0, time=note.duration),
         ]
 
-    def generate(self, filename):
+    def generate(self, filename, numtracks):
         with mido.midifiles.MidiFile() as midi:
-            track = mido.MidiTrack()
-            last_note = None
-            # Generate a sequence of 100 notes
-            for i in range(100):
-                new_note = self.markov_chain.get_next(last_note)
-                track.extend(self._note_to_messages(new_note))
-            midi.tracks.append(track)
+            for tracknum in range(numtracks):
+                track = mido.MidiTrack()
+                last_note = None
+                # Generate a sequence of 100 notes
+                for i in range(100):
+                    new_note = self.markov_chain.get_next(last_note)
+                    track.extend(self._note_to_messages(new_note))
+                midi.tracks.append(track)
             midi.save(filename)
 
 
 if __name__ == "__main__":
-    import sys
+    # Example usage:
+    # python generator.py <in.mid> <out.mid>
 
-    if len(sys.argv) == 3:
-        # Example usage:
-        # python generator.py <in.mid> <out.mid>
-        from parser import Parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("infile", metavar="in.mid", help="The midi input file")
+    parser.add_argument(
+        "outfile", metavar="out.mid", help="Where to put the generated midi file"
+    )
+    parser.add_argument(
+        "-n", dest="numtracks", help="How many tracks to generate", default=1, type=int
+    )
 
-        chain = Parser(sys.argv[1]).get_chain()
-        Generator.load(chain).generate(sys.argv[2])
-        print("Generated markov chain")
-    else:
-        print("Invalid number of arguments:")
-        print("Example usage: python generator.py <in.mid> <out.mid>")
+    args = parser.parse_args()
+
+    chain = MidiParser(args.infile).get_chain()
+    Generator.load(chain).generate(args.outfile, args.numtracks)
+    print("Generated markov chain at file", args.outfile)
